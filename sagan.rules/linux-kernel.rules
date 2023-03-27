@@ -1,0 +1,69 @@
+# linux-kernel.rules
+# Copyright (c) 2009-2022. Quadrant Information Security <www.quadrantsec.com>
+# All rights reserved.
+#
+# Please submit any custom rules or ideas to sagan-submit@quadrantsec.com or the sagan-sigs mailing list
+#
+#*************************************************************
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#*************************************************************
+# 
+
+# These detect "generic" netfilter/iptables messages.  Normalization will _not_ work if your using a user-defined iptables LOG "prefix" options!
+
+#alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] IPTABLES TCP"; content: "IN="; content: "OUT="; content: "PROTO=TCP"; default_proto: tcp; classtype: bad-unknown; normalize; program: kernel; sid: 5001104; rev:3;)
+#alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] IPTABLES TCP"; content: "IN="; content: "OUT="; content: "PROTO=UDP"; default_proto: tcp; classtype: bad-unknown; normalize; program: kernel; sid: 5001105; rev:3;)
+
+# General file system errors (Champ Clark - 01/09/2014)
+
+#alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] ReiserFS error"; content: "REISERFS error"; classtype: hardware-event; program: kernel; threshold: type suppress, track by_src, count 5, seconds 300; sid: 5001943; rev:2;)
+#alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] Unhandled error code"; content: "Unhandled error code"; classtype: hardware-event; program: kernel; threshold: type suppress, track by_src, count 5, seconds 300; sid: 5001944; rev:2;)
+alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] I/O error"; content: "I/O error, dev"; content:!"dev fd"; classtype: hardware-event; program: kernel; threshold: type suppress, track by_src, count 5, seconds 300; sid: 5001945; rev:3;)
+alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] hostbyte=DID_ERROR"; content: "hostbyte=DID_ERROR"; classtype: hardware-event; program: kernel; threshold: type suppress, track by_src, count 5, seconds 300; sid: 5001946; rev:2;)
+
+# HPSA (HP Raid controllers) - (Champ Clark - 05/07/2015)
+
+alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] Hard drive/RAID - FAILED abort on device"; content: "hpsa "; content: "FAILED abort on device"; classtype: hardware-event; program: kernel; sid:5002278; rev:2;)
+alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] Hard drive/RAID - probably means device no longer present"; content: "hpsa "; content: "probably means device no longer present"; classtype: hardware-event; program: kernel; sid:5002279; rev:2;)
+
+# UDP: bad checksum. From 10.XX.X.XXX:137 to 10.XX.X.XXX:137 ulen 76
+
+#alert any $EXTERNAL_NET any -> $HOME_NET any (msg:"[LINUX-KERNEL] Bad UDP checksum"; program: UDP; content: "bad checksum.""; classtype: network-event; sid:5003115; rev:1;)
+
+
+#Added by S.G.Drenning on 20220127 Regarding CVE 2021-4034 Linux Escalation Attempt.
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POSSIBLE POLKIT PRIVILEGE ESCALATION ATTEMPT (CVE-2021-4034)"; content: "mkdir -p";nocase; content:"|27|GCONV_PATH|3D 2E 27|";distance: 1; nocase;threshold: type suppress, track by_src, count 1, seconds 300; classtype: exploit-attempt; reference: url,github.com/arthepsy/CVE-2021-4034/blob/main/cve-2021-4034-poc.c; sid:5005962; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POSSIBLE POLKIT PRIVILEGE ESCALATION ATTEMPT (CVE-2021-4034)"; content: "chmod"; content:"a|2b|x";distance: 1; content:"|27|GCONV_PATH|3d|";distance:1;nocase; threshold: type suppress, track by_src, count 1, seconds 300;classtype: exploit-attempt; reference: url,github.com/arthepsy/CVE-2021-4034/blob/main/cve-2021-4034-poc.c; sid:5005963; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POLKIT PRIVILEGE ESCALATION ATTEMPT (CVE-2021-4034)"; content: "export PATH|3d 2f|usr|2f|local|2f|sbin|3a 2f|usr|2f|local|2f|bin|3a 2f|usr|2f|sbin|3a 2f|usr|2f|bin|3a 2f|sbin|3a 2f|bin|3b|"; content:"rm -rf";nocase;distance: 1; content:"|27|GCONV_PATH|3d 2e 27|";distance:1;nocase;threshold: type suppress, track by_src, count 1, seconds 300; classtype: exploit-attempt; reference: url,github.com/arthepsy/CVE-2021-4034/blob/main/cve-2021-4034-poc.c; sid:5005964; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POLKIT PRIVILEGE ESCALATION ATTEMPT (CVE-2021-4034)"; content: "PATH|3d 2f|usr|2f|local|2f|sbin|3a 2f|usr|2f|local|2f|bin|3a 2f|usr|2f|sbin|3a 2f|usr|2f|bin|3a 2f|sbin|3a 2f|bin|3a 2f|opt|2f|bin|22 2c|"; content:"NULL";distance: 1; within: 50; nocase; classtype: exploit-attempt; reference: url,github.com/berdav/CVE-2021-4034/blob/main/pwnkit.c; sid:5005965; rev:2;)
+
+#alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POSSIBLE POLKIT PRIVILEGE ESCALATION ATTEMPT (CVE-2021-4034)"; content: "PATH|3d|name|3d 2e|";nocase; classtype: exploit-attempt; reference: url,zdnet.com/article/major-linux-policykit-security-vulnerability-uncovered-pwnkit; sid:5005966; rev:1;)
+
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POLKIT PRIVILEGE ESCALATION ATTEMPT (CVE-2021-4034)"; content: "PATH|3d 2f|";nocase; content:"NULL";nocase;distance:1; content:!"AllowedCiphers|3D|TLSv1.2|3A|HIGH|3A 21|aNULL|3A 21|NULL|3A 40|STRENGTH";nocase; content:!"anull|25 32 63 25 32 32|Address";nocase; content:!"inaccessibleReason|3d|null"; threshold: type suppress, track by_src, count 1, seconds 300; classtype: exploit-attempt; reference: url,github.com/berdav/CVE-2021-4034/blob/main/pwnkit.c; sid:5005967; rev:2;)
+
+#Rule IOC Identived by J.Hubner
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POLKIT PRIVILEGE ESCALATION ARTIFACT (CVE-2021-4034)"; content: "GCONV_PATH|3d|";nocase; classtype: exploit-attempt; threshold: type suppress, track by_src, count 1, seconds 300; reference: url,github.com/berdav/CVE-2021-4034/blob/main/pwnkit.c; sid:5005968; rev:1;)
+
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[LINUX-POLKIT] POLKIT PRIVILEGE ESCALATION ARTIFACT (CVE-2021-4034)"; content: "The value for environment variable";nocase; content:"contains suscipious content";nocase;threshold: type suppress, track by_src, count 1, seconds 300; classtype: exploit-attempt; reference: url,zdnet.com/article/major-linux-policykit-security-vulnerability-uncovered-pwnkit/; sid:5005970; rev:1;)

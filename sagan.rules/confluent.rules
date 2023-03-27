@@ -1,0 +1,80 @@
+# Sagan confluent.rules
+# Copyright (c) 2009-2022. Quadrant Information Security <www.quadrantsec.com>
+# All rights reserved.
+#
+# Please submit any custom rules or ideas to sagan-submit@quadrantsec.com or the sagan-sigs mailing list
+#
+#*************************************************************
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#*************************************************************
+#
+
+# These sigantures are by Joseph Suain @ Quandrant Information Security.  They requre that JSON be 
+# enabled within the Sagan YAML.
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Authorization to create Kafka Cluster"; json_content: ".data.methodName", "mds.Authorize"; json_content: ".data.authorizationInfo.granted", "true"; json_content: ".data.authorizationInfo.operation", "CreateCloudCluster"; classtype: successful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005921; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Successful Authentication"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "SUCCESS"; classtype: successful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005922; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Successful Authentication using API Key"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "SUCCESS"; json_content: ".data.authenticationInfo.metadata.mechanism", "SASL_SSL/OAUTHBEARER"; classtype: successful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005923; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Successful Authentication using Interactive Token"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "SUCCESS"; json_content: ".data.authenticationInfo.metadata.mechanism", "SASL_SSL/PLAIN"; classtype: successful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005924; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Failed Authentication"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "UNAUTHENTICATED"; classtype: unsuccessful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005925; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Failed Authentication using Interactive Token"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "UNAUTHENTICATED"; json_content: ".data.authenticationInfo.metadata.mechanism", "SASL_SSL/PLAIN"; classtype: unsuccessful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005926; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Failed Authentication using API Key"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "UNAUTHENTICATED"; json_content: ".data.authenticationInfo.metadata.mechanism", "SASL_SSL/OAUTHBEARER"; classtype: unsuccessful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005927; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Login failure- Brute Force [5/5]"; json_content: ".data.methodName", "kafka.Authentication"; json_content: ".data.result.status", "UNAUTHENTICATED"; after: track by_src, count 5, seconds 300; threshold: type suppress, track by_src, count 1, seconds 86400; xbits: set,brute_force,track ip_src, expire 21600; classtype: unsuccessful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005928; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Configuration Altered/Updated"; json_content: ".data.methodName", "kafka.AlterConfigs"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005929; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Mirror Topic Properties Altered/Updated"; json_content: ".data.methodName", "kafka.AlterMirrors"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005930; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Broker ACL Created"; json_content: ".data.methodName", "kafka.CreateAcls"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005931; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Cluster Link Created"; json_content: ".data.methodName", "kafka.CreateClusterLinks"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005932; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Partition Created"; json_content: ".data.methodName", "kafka.CreatePartitions"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005933; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Topic Created"; json_content: ".data.methodName", "kafka.CreateTopics"; json_content: ".data.authorizationInfo.granted", "true"; json_content: ".data.authorizationInfo.operation", "Create"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005934; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Specific Kafka Topic Created"; json_content: ".data.methodName", "kafka.CreateTopics"; json_content: ".data.authorizationInfo.granted", "true"; json_content: ".data.authorizationInfo.operation", "DescribeConfigs"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005935; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Specific Kafka Topic Creation Not Allowed"; json_content: ".data.methodName", "kafka.CreateTopics"; json_content: ".data.authorizationInfo.granted", "false"; json_content: ".data.authorizationInfo.operation", "Create"; json_content: ".data.authorizationInfo.superUserAuthorization", "false"; classtype: unsuccessful-user; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005936; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Broker ACL Deleted"; json_content: ".data.methodName", "kafka.DeleteAcls"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005937; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Cluster Link Deleted"; json_content: ".data.methodName", "kafka.DeleteClusterLinks"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005938; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Group Deleted"; json_content: ".data.methodName", "kafka.DeleteGroups"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005939; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Record Deleted"; json_content: ".data.methodName", "kafka.DeleteRecords"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html;  sid:5005940; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Topic Deleted"; json_content: ".data.methodName", "kafka.DeleteTopics"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html;  sid:5005941; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Broker Dynamic Configuration Altered"; json_content: ".data.methodName", "kafka.IncrementalAlterConfigs"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005942; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Broker Dynamic Configuration Altered (SuperUser)"; json_content: ".data.methodName", "kafka.IncrementalAlterConfigs"; json_content: ".data.authorizationInfo.granted", "true"; json_content: ".data.authorizationInfo.superUserAuthorization", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005943; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Broker Dynamic Configuration Altered (ACL)"; json_content: ".data.methodName", "kafka.IncrementalAlterConfigs"; json_content: ".data.authorizationInfo.granted", "true"; json_content: ".data.authorizationInfo.superUserAuthorization", "false"; json_content: ".data.authorizationInfo.aclAuthorization.permissionType", "ALLOW"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html; sid:5005944; rev:1;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg: "[CONFLUENT] Kafka Committed Offset for Partition in Consumer Group Deleted"; json_content: ".data.methodName", "kafka.OffsetDelete"; json_content: ".data.authorizationInfo.granted", "true"; classtype: configuration-change; reference: url,docs.confluent.io/cloud/current/access-management/audit-logging/cloud-audit-log-concepts.html;  sid:5005945; rev:1;)

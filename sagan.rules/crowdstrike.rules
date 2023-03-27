@@ -1,0 +1,150 @@
+# Sagan crowdstrike.rules
+# Copyright (c) 2009-2022. Quadrant Information Security <www.quadrantsec.com>
+# All rights reserved.
+#
+# Please submit any custom rules or ideas to sagan-submit@quadrantsec.com or the sagan-sigs mailing list
+#
+#*************************************************************
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#*************************************************************
+
+# rules by "Bryant Smith" <bsmith@quadrantsec.com>
+# 08/23/2022
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike High Severity Event Reported "; content: "DetectionSummaryEvent"; nocase; content: "SeverityName=|22|High"; nocase; classtype:exploit-attempt; sid:5004756; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Critical Severity Event Reported "; content: "DetectionSummaryEvent"; nocase; content: "SeverityName=|22|Critical"; nocase; content: !"BullPlugin.exe"; nocase; classtype:exploit-attempt; sid:5004757; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Low Severity Event Reported "; content: "DetectionSummaryEvent"; nocase; content: "SeverityName=|22|Low"; nocase; content:!"BullPlugin"; nocase; classtype:exploit-attempt; sid:5004758; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Medium Severity Event Reported "; content: "DetectionSummaryEvent"; nocase; content: "SeverityName=|22|Medium"; nocase; classtype:exploit-attempt; sid:5004759; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Remote Response Session Start Event Reported"; content: "RemoteResponseSessionStartEvent"; nocase; classtype:suspicious-traffic; sid:5004785; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Remote Response Session End Event Reported"; content: "RemoteResponseSessionEndEvent"; nocase; classtype:suspicious-traffic; sid:5004786; rev:2;)
+
+alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Quarantine Files in Detection Summary Event reported"; content: "Quarantined Files In A Detection Summary Event"; nocase; classtype:malware; sid:5005232; rev:2;)
+
+#alert any $HOME_NET any -> $EXTERNAL_NET any (msg:"[CROWDSTRIKE] CrowdStrike Detection Summary Event Reported"; content: "DetectionSummaryEvent"; nocase; classtype:suspicious-traffic; sid:5005233; rev:2;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Indicator of Compromise Detected"; program:CrowdStrike; content:!"DetectionSummaryEvent"; content:!"DNS Request In A Detection"; content:!"Network Access In A Detection"; content:!"Quarantined Files In A Detection"; content:"technique=Indicator of Compromise"; classtype:malware; sid:5007162; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] A SHA256 hash matched a Custom Intelligence Indicator"; program:CrowdStrike; content:"DetectionSummaryEvent"; content:"msg=A SHA256 hash matched a Custom Intelligence Indicator"; classtype:malware; sid:5007163; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Assert"; program:CrowdStrike; content:"assert"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007164; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Password Change"; program:CrowdStrike; content:"changePassword"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007165; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Create API Client"; program:CrowdStrike; content:"CreateAPIClient"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007166; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Create User"; program:CrowdStrike; content:"createUser"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007167; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Grant User Roles"; program:CrowdStrike; content:"grantUserRoles"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007168; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event User Authenticate"; program:CrowdStrike; content:"userAuthenticate"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007169; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Two Factor Authentication"; program:CrowdStrike; content:"twoFactorAuthenticate"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007170; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Request Password Reset"; program:CrowdStrike; content:"requestResetPassword"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007171; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Reset Auth Secret"; program:CrowdStrike; content:"resetAuthSecret"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007172; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Revoke User Roles"; program:CrowdStrike; content:"revokeUserRoles"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007173; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Delete User"; program:CrowdStrike; content:"deleteUser"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007174; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Self Accpet Eula"; program:CrowdStrike; content:"selfAcceptEula"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007175; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Steam Started"; program:CrowdStrike; content:"streamStarted"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007176; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Stream Stopped"; program:CrowdStrike; content:"streamStopped"; content:"cat=AuthActivityAuditEvent"; classtype:system-event; sid:5007177; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Add Group"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|add_group|7c|"; classtype:system-event; sid:5007178; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Create Group"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|create_group|7c|"; classtype:system-event; sid:5007179; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Delete Group"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|delete_group|7c|"; classtype:system-event; sid:5007180; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Update Group"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|update_group|7c|"; classtype:system-event; sid:5007181; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Add Policy"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|add_policy|7c|"; classtype:system-event; sid:5007182; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Create Policy"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|create_policy|7c|"; classtype:system-event; sid:5007183; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Delete Policy"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|delete_policy|7c|"; classtype:system-event; sid:5007184; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Update Policy"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|update_policy|7c|"; classtype:system-event; sid:5007185; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Enable Policy"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|enable_policy|7c|"; classtype:system-event; sid:5007186; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event New Exception"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|new_exception|7c|"; classtype:system-event; sid:5007187; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Create Exception"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|create_exception|7c|"; classtype:system-event; sid:5007188; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Delete Exception"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|delete_exception|7c|"; classtype:system-event; sid:5007189; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Update Exception"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|update_exception|7c|"; classtype:system-event; sid:5007190; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Update Priority"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|update_priority|7c|"; classtype:system-event; sid:5007191; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Containment Request"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|containment_requested|7c|"; classtype:system-event; sid:5007192; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Lift Containment Request"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|lift_containment_requested|7c|"; classtype:system-event; sid:5007193; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Detection Update"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|detection_update|7c|"; classtype:system-event; sid:5007194; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Quarantined File Update"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|quarantined_file_update|7c|"; classtype:system-event; sid:5007195; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Add SS IOA Exclusion"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|add_ss_ioa_exclusion|7c|"; classtype:system-event; sid:5007196; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Hide Host Requested"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|hide_host_requested|7c|"; classtype:system-event; sid:5007197; rev:1;)
+
+#alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Auth Activity Audit Event Reveal Token"; program:CrowdStrike; content:"UserActivityAuditEvent|7c|reveal_token|7c|"; classtype:system-event; sid:5007198; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] DNS Request In A Detection Summary Event"; program:CrowdStrike; content:"DNS Request In A Detection Summary Event"; classtype:malware; sid:5007199; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Network Access In A Detection Summary Event"; program:CrowdStrike; content:"Network Access In A Detection Summary Event"; classtype:malware; sid:5007200; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Document Access In A Detection Summary Event"; program:CrowdStrike; content:"Document Access In A Detection Summary Event"; classtype:malware; sid:5007201; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Executable Written In A Detection Summary Event"; program:CrowdStrike; content:"Executable Written In A Detection Summary Event"; classtype:malware; sid:5007202; rev:1;)
+
+#BS 09 Dec 2022
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Detection, standard detection"; program:CrowdStrike; content:"patternDisposition=Detection, standard detection"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Detection, 10; classtype:malware; sid:5010459; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Prevention, process killed"; program:CrowdStrike; content:"patternDisposition=Prevention, process killed"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Prevention, 10; classtype:malware; sid:5010460; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Detection, process would have been killed if related prevention policy setting was enabled"; program:CrowdStrike; content:"patternDisposition=Detection, process would have been killed"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Detection, 10; classtype:malware; sid:5010461; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Prevention, parent process killed"; program:CrowdStrike; content:"patternDisposition=Prevention, parent process killed; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Prevention, 10; classtype:malware; sid:5010462; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Detection, parent process would have been killed if related prevention policy setting was enabled"; program:CrowdStrike; content:"patternDisposition=Detection, parent process would have been killed"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Detection, 10; classtype:malware; sid:5010463; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Prevention, process blocked from execution"; program:CrowdStrike; content:"patternDisposition=Prevention, process blocked from execution"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Prevention, 10; classtype:malware; sid:5010464; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Detection, process would have been blocked if related prevention policy setting was enabled"; program:CrowdStrike; content:"patternDisposition=Detection, process would have been blocked"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Detection, 10; classtype:malware; sid:5010465; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Prevention, operation blocked"; program:CrowdStrike; content:"patternDisposition=Prevention, operation blocked"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Prevention, 10; classtype:malware; sid:5010466; rev:1;)
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Detection, operation would have been blocked if related prevention policy setting was enabled"; program:CrowdStrike; content:"patternDisposition=Detection, operation would have been blocked"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:set, Crowdstrike.patternDisposition.Detection, 10; classtype:malware; sid:5010467; rev:1;)
+
+
+
+#=================================================================================================================
+#                               CROWDSTRIKE patternDisposition Catch All Rules
+#                               !!!Keep at the bottom of the ruleset!!!
+#=================================================================================================================
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Pattern Disposition Detection Catch All Rule"; program:CrowdStrike; content:"patternDisposition=Detection"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:isnotset, none, Crowdstrike.patternDisposition.Detection, 10; classtype:malware; sid:5010468; rev:1;)
+
+alert any $HOME_NET any -> $HOME_NET any (msg:"[CROWDSTRIKE] Pattern Disposition Prevention Catch All Rule"; program:CrowdStrike; content:"patternDisposition=Prevention"; reference:url,www.reddit.com/r/crowdstrike/comments/rbbzwi/pattern_disposition_values_in_detect_api/; flexbits:isnotset, none, Crowdstrike.patternDisposition.Prevention, 10; classtype:malware; sid:5010469; rev:1;)
+#=================================================================================================================
+

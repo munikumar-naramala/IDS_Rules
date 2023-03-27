@@ -1,0 +1,195 @@
+<group name="rule_exclusion,">
+<!-- Logon/Logoff Machine Accounts -->
+  <rule id="900001" level="1">
+    <if_sid>60106</if_sid>
+    <field name="win.eventdata.targetUserName">\$$</field>
+    <description>Exclude Computer Account logons</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="900002" level="1">
+    <if_sid>60137</if_sid>
+    <field name="win.eventdata.targetUserName">\$$</field>
+    <description>Exclude Computer Account logouts</description>
+    <options>no_full_log</options>
+  </rule>
+<!-- Logon FREQ Rule -->
+  <rule id="900003" level="1" frequency="2" timeframe="5">
+   <if_matched_sid>60106</if_matched_sid>
+   <same_field>win.eventdata.targetUserName</same_field>
+   <description>Exclude same username login twice in 1 minute</description>
+  </rule>
+<!-- Exclude Audit Failure Events SeTcbPrivilege -->
+  <rule id="900004" level="1">
+    <if_sid>60107</if_sid>
+    <field name="win.eventdata.privilegeList">^SeTcbPrivilege$</field>
+    <description>Exclude Audit Failure Events SeTcbPrivilege</description>
+    <options>no_full_log</options>
+  </rule>
+  <!-- Exclude Ossec Process -->
+  <rule id="900005" level="1">
+    <if_group>osquery</if_group>
+    <field name="columns.cwd">^/var/ossec$</field>
+    <description>Exclude ossec</description>
+    <options>no_full_log</options>
+  </rule>
+  <!-- Exclude Git for Sigma rule pull -->
+  <rule id="900006" level="1">
+    <if_sid>109103</if_sid>
+    <field name="win.eventdata.sourceImage">Git-2.39.2-64-bit.tmp$</field>
+    <description>Exclude Git</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="900007" level="1">
+    <if_group>sysmon_event_17</if_group>
+    <field name="win.eventdata.image">^C:\\\\Program Files\\\\Git</field>    
+    <description>Exclude Git</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900008" level="1">
+    <if_group>sysmon_event_10</if_group>
+    <field name="win.eventdata.sourceImage">^C:\\\\Program Files\\\\Git</field>    
+    <description>Exclude Git</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900009" level="1">
+    <if_group>windows</if_group>
+    <field name="event.TargetImage">^C:\\Program Files\\socfortress</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900010" level="1">
+    <if_group>windows</if_group>
+    <field name="event.CommandLine">^C:\\Program Files\\socfortress|\\ossec-agent\\active-response\\bin\\chainsaw.ps1</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900011" level="1">
+    <if_group>chainsaw</if_group>
+    <field name="event.SourceImage">^C:\\Windows\\Explorer.EXE$</field>    
+    <field name="event.TargetImage">^C:\\Windows\\system32\\taskmgr.exe$|^C:\\Windows\\system32\\MusNotifyIcon.exe$</field> 
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900012" level="1">
+    <if_group>windows</if_group>
+    <field name="win.eventdata.image">vc_redist.x64.exe$|sysinternals\\\\sigcheck64.exe$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900013" level="1">
+    <if_group>chainsaw</if_group>
+    <field name="event.SourceImage">Git-2.39.2-64-bit.tmp$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900014" level="1">
+    <if_group>chainsaw</if_group>
+    <field name="event.SourceImage">^C:\\Program Files\\Git</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900015" level="1">
+    <if_group>chainsaw</if_group>
+    <field name="name">^Sysmon Blocked Executable$|^Windows Defender Threat Detected$|^Win Defender Restored Quarantine File$|^Uninstall Sysinternals Sysmon$|^External Remote SMB Logon from Public IP$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900016" level="1">
+    <if_group>windows</if_group>
+    <field name="win.eventdata.path">\\\\ossec-agent\\\\active-response\\\\bin\\\\chainsaw.ps1$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900017" level="1">
+    <if_group>windows</if_group>
+    <field name="win.eventdata.originalFileName">^mscorlib.dll$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900018" level="1">
+    <if_group>sysmon_event_12</if_group>
+    <field name="win.eventdata.targetObject">^HKLM\\SOFTWARE\\Microsoft\\EnterpriseCertificates\\Root\\Certificates$|^HKU\\\\.DEFAULT\\\\Software\\\\Microsoft\\\\SystemCertificates\\\\Root\\\\Certificates$|^HKLM\\\\SOFTWARE\\\\Microsoft\\\\SystemCertificates\\\\CA\\\\Certificates$|^HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\SystemCertificates\\\\CA\\\\Certificates$|^HKU\\\\.DEFAULT\\\\Software\\\\Policies\\\\Microsoft\\\\SystemCertificates\\\\CA\\\\Certificates$|^HKU\\\\.DEFAULT\\\\Software\\\\Microsoft\\\\SystemCertificates\\\\CA\\\\Certificates$|^HKLM\\\\SOFTWARE\\\\Microsoft\\\\EnterpriseCertificates\\\\Root\\\\Certificates$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900019" level="1">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.image">^C:\\\\Program Files\\\\socfortress\\\\chainsaw\\\\chainsaw.exe$|^C:\\\\Program Files\\\\Git</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900020" level="1">
+    <if_group>chainsaw</if_group>
+    <field name="event.CommandLine">Windows\\system32\\silcollector.cmd configure$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900021" level="1">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.currentDirectory">^C:\\\\Program Files\\\\socfortress\\\\chainsaw\\\\sigma</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900022" level="1">
+    <if_group>sysmon_event7</if_group>
+    <field name="win.eventdata.signature">^Microsoft Windows$</field>    
+    <field name="win.eventdata.signatureStatus">^Valid$</field>  
+    <field name="win.eventdata.signed">^true$</field>  
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900023" level="1">
+    <if_group>sysmon_event_11</if_group>
+    <field name="win.eventdata.image">socfortress\\\\chainsaw\\\\chainsaw.exe$</field>    
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900024" level="1">
+    <if_group>sysmon_event_11</if_group>
+    <field name="win.eventdata.image">^C:\\\\Windows\\\\system32\\\\svchost.exe$</field>    
+    <field name="win.eventdata.targetFilename">^C:\\\\Windows\\\\SoftwareDistribution\\\\Download</field> 
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+ <rule id="900025" level="1">
+    <if_group>sysmon_event_11</if_group>
+    <field name="win.eventdata.image">^C:\\\\Windows\\\\SysWOW64\\\WindowsPowerShell\\\\v1.0\\\\Powershell.exe$</field>    
+    <field name="win.eventdata.targetFilename">^C:\\\\Windows\\\\Temp\\\\__PSScriptPolicyTest</field> 
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+  <rule id="900026" level="1">
+    <if_sid>100541</if_sid>
+    <field name="win.eventdata.scriptBlockText">^\$global:?$</field>
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="900027" level="1">
+    <if_group>sysmon_event_11</if_group>
+    <field name="win.eventdata.image">^C:\\\\Program Files \(x86\)\\\\ossec-agent\\\\wazuh-agent.exe$</field>    
+    <field name="win.eventdata.targetFilename">^C:\\\\Windows\\\\Temp</field> 
+    <description>Exclude Socfortress</description>
+    <options>no_full_log</options>
+ </rule>
+  <!-- Exclude Kickstart -->
+  <rule id="900028" level="1">
+    <if_sid>200281</if_sid>
+    <field name="columns.cmdline" type="pcre2">netstat\s+-an\s+\|\s+grep\s+"\^tcp"\s+\|\s+grep\s+"\[\^0-9\]</field>
+    <description>Exclude Wazuh Netstart for Listening Ports</description>
+    <options>no_full_log</options>
+  </rule>
+  <!-- Exclude mscorsvw.exe and System.Management.Automation.dll -->
+  <rule id="900029" level="1">
+    <if_group>sysmon_eid7_detections</if_group>
+    <field name="win.eventdata.image">mscorsvw.exe$</field>
+    <field name="win.eventdata.imageLoaded">System.Management.Automation.dll$|System.Management.Automation.ni.dll$</field>
+    <description>Exclude Common DLL Loading</description>
+    <options>no_full_log</options>
+  </rule>
+  <!-- Lower Sev for Executable file dropped in folder commonly used by malware. Triggers many FPs due to user's browsers -->
+  <rule id="900030" level="8">
+    <if_sid>92204</if_sid>
+    <description>Executable file dropped in folder commonly used by malware.</description>
+    <options>no_full_log</options>
+  </rule>
+</group>
